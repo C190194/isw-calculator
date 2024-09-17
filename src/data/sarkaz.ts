@@ -57,7 +57,7 @@ export const EmergencyOperationInfos: { [key: string]: EmergencyOperationInfo } 
   // 第三层
   [EmergencyOperation.AGreatGame]: {
     level: Level.Third,
-    score: 25
+    score: 50
   },
   [EmergencyOperation.GirimoireOfChaos]: {
     level: Level.Third,
