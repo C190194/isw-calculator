@@ -2,7 +2,7 @@ import { Component, createSignal, For, Match, Show, Switch } from "solid-js";
 import "./App.css";
 import { BottomNavigation, BottomNavigationAction, Box, Button, Card, Checkbox, FormControl, IconButton, InputLabel, MenuItem, Modal, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, useMediaQuery } from "@suid/material";
 
-import { BannedOperator as BannedOperator, BannedOperatorInfos, BossOperation, BossOperationInfos, Collectible, EmergencyOperation, EmergencyOperationInfos, HiddenOperation, HiddenOperationInfos, KingsCollectible, Squad } from "./data/sarkaz";
+import { BannedOperator as BannedOperator, BannedOperatorInfos, BossOperation, BossOperationInfos, Collectible, EmergencyOperation, EmergencyOperationInfos, HiddenOperation, HiddenOperationInfos, KingsCollectible, Squad, Difficulty } from "./data/sarkaz";
 import { AddEmergencyRecordModal, EmergencyOperationRecord } from "./components/AddEmergencyRecordModal";
 import { createStore } from "solid-js/store";
 import { AddBossRecordModal, BossOperationRecord } from "./components/AddBossRecordModal";
@@ -23,6 +23,7 @@ type KingsCollectibleRecord = {
 type Store = {
   collectible: Collectible | null,
   squad: Squad | null,
+  difficulty: Difficulty | null,
   emergencyRecords: EmergencyOperationRecord[],
   hiddenRecords: HiddenOperationRecord[],
   bossRecords: BossOperationRecord[],
@@ -100,6 +101,7 @@ const testStoreValue: Store = {
 
 const defaultStoreValue: Store = {
   squad: null,
+  difficulty: null,
   collectible: null,
   collectionsCnt: 0,
   killedHiddenCnt: 0,
@@ -125,13 +127,15 @@ function App() {
 
   const [store, setStore] = createStore<Store>({ ...defaultStoreValue });
   // const [store, setStore] = createStore<Store>({ ...testStoreValue });
-
+  
+  // 刷新 *50% / 私仇刷新 *30%
+  // 无漏 *120%
   const calcEmergencyRecordScore = (idx: number) => {
     const record = store.emergencyRecords[idx];
     const info = EmergencyOperationInfos[record.operation];
     const score = info.score * (record.perfect ? 1.2 : 1) * (
       record.refresh ? (
-        store.collectible == Collectible.HatredInTheEraOfDeathFeud ? 0.1 : 0.3
+        store.collectible == Collectible.HatredInTheEraOfDeathFeud ? 0.3 : 0.5
       ) : 1
     );
     return score;
@@ -167,21 +171,21 @@ function App() {
     return sum;
   }
 
-  const toggleBannedOperator = (operator: BannedOperator) => {
-    setStore("bannedOperatorRecords", (operators) => operators.map((item) => {
-      return item.operator != operator ? item : { ...item, banned: !item.banned }
-    }));
-  }
+  // const toggleBannedOperator = (operator: BannedOperator) => {
+  //   setStore("bannedOperatorRecords", (operators) => operators.map((item) => {
+  //     return item.operator != operator ? item : { ...item, banned: !item.banned }
+  //   }));
+  // }
 
-  const calcBannedSum = () => {
-    return store.bannedOperatorRecords.reduce((sum, record) => sum + (record.banned ? BannedOperatorInfos[record.operator] : 0), 0);
-  }
+  // const calcBannedSum = () => {
+  //   return store.bannedOperatorRecords.reduce((sum, record) => sum + (record.banned ? BannedOperatorInfos[record.operator] : 0), 0);
+  // }
 
-  const toggleKingsCollectible = (collectible: KingsCollectible) => {
-    setStore("kingsCollectibleRecords", (collectibles) => collectibles.map((item) => {
-      return item.collectible != collectible ? item : { ...item, owned: !item.owned }
-    }));
-  }
+  // const toggleKingsCollectible = (collectible: KingsCollectible) => {
+  //   setStore("kingsCollectibleRecords", (collectibles) => collectibles.map((item) => {
+  //     return item.collectible != collectible ? item : { ...item, owned: !item.owned }
+  //   }));
+  // }
 
   // 3) e) 结算时，若持有超过1件“国王”藏品，从第二件藏品开始每持有一件藏品扣除20分；触
   //       发“诸王的冠冕”3层效果时，额外扣除40分；若集齐游戏内所有“国王”藏品，额外扣除
@@ -189,26 +193,46 @@ function App() {
   // 正赛：更改为 结算时，若持有超过1件“国王”藏品，从第二件藏品开始每持有一件藏品扣除20分；在“失落财宝”中选择《泰拉之王》时，额外扣除40分；若集齐游戏内所有“国王”藏品，额外扣除
   //       20分；
   //      
-  const calcKingsCollectibleSum = () => {
-    const kingsCollectibleCnt = store.kingsCollectibleRecords.reduce((sum, record) => sum + (record.owned ? 1 : 0), 0);
-    // const ownedCrown = store.kingsCollectibleRecords.find((record) => record.collectible == KingsCollectible.KingsCrown && record.owned);
-    let score = 0;
-    if (kingsCollectibleCnt > 1) {
-      score = (kingsCollectibleCnt - 1) * -20;
-    }
-    if (store.kingOfTerra) {
-      score -= 40;
-    }
-    if (kingsCollectibleCnt == 4) {
-      score -= 20;
-    }
-    return score
-  }
+  // const calcKingsCollectibleSum = () => {
+  //   const kingsCollectibleCnt = store.kingsCollectibleRecords.reduce((sum, record) => sum + (record.owned ? 1 : 0), 0);
+  //   // const ownedCrown = store.kingsCollectibleRecords.find((record) => record.collectible == KingsCollectible.KingsCrown && record.owned);
+  //   let score = 0;
+  //   if (kingsCollectibleCnt > 1) {
+  //     score = (kingsCollectibleCnt - 1) * -20;
+  //   }
+  //   if (store.kingOfTerra) {
+  //     score -= 40;
+  //   }
+  //   if (kingsCollectibleCnt == 4) {
+  //     score -= 20;
+  //   }
+  //   return score
+  // }
 
   /// Others ///
 
-  // 3) f) 结算时，若持有“希望时代的涂鸦”，则每个藏品额外获得3分加分；
-  const collectibleScore = () => store.collectible == Collectible.DoodleInTheEraOfHope ? 3 : 0;
+  // 3) g) 结算时，按照难度设置权重；
+  const difficultyWeight = () => {
+    switch (store.difficulty) {
+      case Difficulty.Diff15:
+        return 1.0;
+      case Difficulty.Diff14:
+        return 0.9;
+      case Difficulty.Diff13:
+        return 0.8;
+      case Difficulty.Diff12:
+        return 0.7;
+      case Difficulty.Diff11:
+        return 0.65;
+      case Difficulty.Diff10:
+          return 0.6;
+      default:
+        return 0; // Default value if difficulty is not 13, 14, or 15
+    }
+  }
+
+  // 3) f) 结算时，若持有“希望时代的涂鸦”，则每个藏品额外获得1分加分；
+  const collectibleScore = () => store.collectible == Collectible.DoodleInTheEraOfHope ? 1 : 0;
   const calcCollectionsScore = () => {
     return store.collectionsCnt * collectibleScore();
   }
@@ -222,10 +246,10 @@ function App() {
   // 3) b) 每局游戏有8次刷新节点的机会，若选择蓝图测绘分队，则提升至15次。结算分数时，
   //        若本局游戏中刷新节点次数超过规定，每超出的一次刷新节点行为额外扣除50分。特
   //        殊地，持有“先知长角”且生效时，将节点刷新为“命运所指”的行为不计入刷新次数；
-  const maxRefreshCnt = () => store.squad == Squad.BlueprintSurveyingSquad ? 15 : 8;
-  const calcRefreshScore = () => {
-    return store.refreshCnt > maxRefreshCnt() ? (store.refreshCnt - maxRefreshCnt()) * -50 : 0;
-  }
+  // const maxRefreshCnt = () => store.squad == Squad.BlueprintSurveyingSquad ? 15 : 8;
+  // const calcRefreshScore = () => {
+  //   return store.refreshCnt > maxRefreshCnt() ? (store.refreshCnt - maxRefreshCnt()) * -50 : 0;
+  // }
 
   // 3) c) 每局游戏的源石锭余额减少总数超过40时，每额外减少1源石锭余额，额外扣除50分；
   const calcWithdrawScore = () => {
@@ -233,14 +257,13 @@ function App() {
   }
 
   const calcScore = () => {
-    return store.score * 0.5
+    return store.score * difficultyWeight()
   }
 
   const calcTotalSum = () => {
     return calcScore()
       + calcEmergencySum() + calcHiddenSum() + calcBossSum()
-      + calcCollectionsScore() + calcHiddenScore() + calcRefreshScore() + calcWithdrawScore()
-      + calcBannedSum() + calcKingsCollectibleSum();
+      + calcCollectionsScore() + calcHiddenScore() + calcWithdrawScore();
   }
 
   // 开局设置
@@ -508,61 +531,61 @@ function App() {
     </Card>
   </>
 
-  // 阵容补偿
-  const OperatorPart = () => <>
-    {/* 阵容补偿 */}
-    <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-        <Typography variant="h6">阵容补偿</Typography>
-        <Box sx={{ flexGrow: 1 }} />
-        <Typography>该部分得分: {calcBannedSum()}</Typography>
-      </Box>
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-        <For each={store.bannedOperatorRecords}>{(item) => <>
-          <Button variant="outlined" color={item.banned ? "success" : "secondary"} onClick={() => {
-            toggleBannedOperator(item.operator)
-          }}>
-            {item.operator}
-            <Show when={item.banned}>
-              <span style={{ color: "green" }}>（+{BannedOperatorInfos[item.operator]}）</span>
-            </Show>
-          </Button>
-        </>}</For>
-      </Box>
-    </Card>
-  </>
+  // // 阵容补偿
+  // const OperatorPart = () => <>
+  //   {/* 阵容补偿 */}
+  //   <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
+  //     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+  //       <Typography variant="h6">阵容补偿</Typography>
+  //       <Box sx={{ flexGrow: 1 }} />
+  //       <Typography>该部分得分: {calcBannedSum()}</Typography>
+  //     </Box>
+  //     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+  //       <For each={store.bannedOperatorRecords}>{(item) => <>
+  //         <Button variant="outlined" color={item.banned ? "success" : "secondary"} onClick={() => {
+  //           toggleBannedOperator(item.operator)
+  //         }}>
+  //           {item.operator}
+  //           <Show when={item.banned}>
+  //             <span style={{ color: "green" }}>（+{BannedOperatorInfos[item.operator]}）</span>
+  //           </Show>
+  //         </Button>
+  //       </>}</For>
+  //     </Box>
+  //   </Card>
+  // </>
 
-  // 国王收藏品
-  const KingsCollectivesPart = () => <>
-    {/* 国王套 */}
-    <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-        <Typography variant="h6">国王套</Typography>
-        <Box sx={{ flexGrow: 1 }} />
-        <Typography>该部分得分: {calcKingsCollectibleSum()}</Typography>
-      </Box>
-      <Button variant={store.kingOfTerra ? "contained" : "outlined"} color={store.kingOfTerra ? "error" : "secondary"} onClick={() => {
-        setStore("kingOfTerra", v => !v)
-        setStore("kingsCollectibleRecords", (collectibles) => collectibles.map((item) => {
-          return { ...item, owned: store.kingOfTerra }
-        }));
-      }}>
-        泰拉之王
-      </Button>
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-        <For each={store.kingsCollectibleRecords}>{(item) => <>
-          <Button variant="outlined" color={item.owned ? "error" : "secondary"} onClick={() => {
-            if (item.owned) {
-              setStore("kingOfTerra", false)
-            }
-            toggleKingsCollectible(item.collectible)
-          }}>
-            {item.collectible}
-          </Button>
-        </>}</For>
-      </Box>
-    </Card>
-  </>
+  // // 国王收藏品
+  // const KingsCollectivesPart = () => <>
+  //   {/* 国王套 */}
+  //   <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2 }}>
+  //     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+  //       <Typography variant="h6">国王套</Typography>
+  //       <Box sx={{ flexGrow: 1 }} />
+  //       <Typography>该部分得分: {calcKingsCollectibleSum()}</Typography>
+  //     </Box>
+  //     <Button variant={store.kingOfTerra ? "contained" : "outlined"} color={store.kingOfTerra ? "error" : "secondary"} onClick={() => {
+  //       setStore("kingOfTerra", v => !v)
+  //       setStore("kingsCollectibleRecords", (collectibles) => collectibles.map((item) => {
+  //         return { ...item, owned: store.kingOfTerra }
+  //       }));
+  //     }}>
+  //       泰拉之王
+  //     </Button>
+  //     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+  //       <For each={store.kingsCollectibleRecords}>{(item) => <>
+  //         <Button variant="outlined" color={item.owned ? "error" : "secondary"} onClick={() => {
+  //           if (item.owned) {
+  //             setStore("kingOfTerra", false)
+  //           }
+  //           toggleKingsCollectible(item.collectible)
+  //         }}>
+  //           {item.collectible}
+  //         </Button>
+  //       </>}</For>
+  //     </Box>
+  //   </Card>
+  // </>
 
   // 结算 & 其他
   const SumPart: Component = () => <>
@@ -588,7 +611,7 @@ function App() {
           onChange={(_, value) => setStore("killedHiddenCnt", parseInt(value) || 0)}
           helperText={`${store.killedHiddenCnt} * 10 = ${calcHiddenScore()}`}
         />
-        <TextField
+        {/* <TextField
           label="刷新次数"
           type="number"
           value={store.refreshCnt}
@@ -598,7 +621,7 @@ function App() {
               ? <span style={{ color: "green" }}>&lt;= {maxRefreshCnt()}</span>
               : <span style={{ color: "red" }}>{store.refreshCnt - maxRefreshCnt()} x -50 = {calcRefreshScore()}</span>
           }
-        />
+        /> */}
         <TextField
           label="取钱数量"
           type="number"
@@ -613,12 +636,33 @@ function App() {
               : <span style={{ color: "red" }}>{store.withdrawCnt - 40} x -50 = {calcWithdrawScore()}</span>
           }
         />
+
+        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "stretch" }}>
+          <Box sx={{ minWidth: 150, flexGrow: 1 }}>
+            <FormControl fullWidth>
+              <InputLabel id="difficulty-select-label">难度</InputLabel>
+              <Select
+                labelId="difficulty-select-label"
+                id="difficulty-select"
+                value={store.difficulty || ''} // use `|| ''` to prevent error
+                label="难度"
+                onChange={(e) => {
+                  setStore("difficulty", e.target.value);
+                }}
+              >
+                <For each={Object.values(Difficulty)}>{(difficulty) => <>
+                  <MenuItem value={difficulty}>{difficulty}</MenuItem>
+                </>}</For>
+              </Select>
+            </FormControl>
+          </Box>
+        </Box>
         <TextField
           label="结算分"
           type="number"
           value={store.score}
           onChange={(_, value) => setStore("score", parseInt(value) || 0)}
-          helperText={`${store.score} x 0.5 = ${calcScore()}`}
+          helperText={`${store.score} x ${difficultyWeight()} = ${calcScore()}`}
         />
       </Box>
     </Card>
@@ -652,10 +696,10 @@ function App() {
                 <HiddenPart />
                 <BossPart />
               </Match>
-              <Match when={tab() == Tab.OperatorsAndKingsCollectible}>
+              {/* <Match when={tab() == Tab.OperatorsAndKingsCollectible}>
                 <OperatorPart />
                 <KingsCollectivesPart />
-              </Match>
+              </Match> */}
               <Match when={tab() == Tab.Others}>
                 <SumPart />
               </Match>
@@ -743,9 +787,9 @@ function App() {
             <HiddenPart />
             <BossPart />
 
-            <OperatorPart />
+            {/* <OperatorPart /> */}
 
-            <KingsCollectivesPart />
+            {/* <KingsCollectivesPart /> */}
 
           </Box>
           <Box sx={{ display: "flex", flexDirection: "column", minWidth: 200, gap: 1 }}>

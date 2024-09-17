@@ -14,6 +14,15 @@ export enum Squad {
   FirstClassSquad = '高规格分队',
 }
 
+export enum Difficulty {
+  Diff15 = '15',
+  Diff14 = '14',
+  Diff13 = '13',
+  Diff12 = '12',
+  Diff11 = '11',
+  Diff10 = '10',
+}
+
 export enum Collectible {
   DoodleInTheEraOfHope = "希望时代的涂鸦",
   HatredInTheEraOfDeathFeud = "死仇时代的恨意",
@@ -51,13 +60,11 @@ export type EmergencyOperationInfo = {
   score: number;
 }
 
-// 刷新 *30% / 私仇刷新 *10%
-// 无漏 *120%
 export const EmergencyOperationInfos: { [key: string]: EmergencyOperationInfo } = {
   // 第三层
   [EmergencyOperation.AGreatGame]: {
     level: Level.Third,
-    score: 10
+    score: 25
   },
   [EmergencyOperation.GirimoireOfChaos]: {
     level: Level.Third,
@@ -69,7 +76,7 @@ export const EmergencyOperationInfos: { [key: string]: EmergencyOperationInfo } 
   },
   [EmergencyOperation.ScarletPassage]: {
     level: Level.Fourth,
-    score: 40,
+    score: 50,
   },
   [EmergencyOperation.NecroticInvestigation]: {
     level: Level.Fourth,
@@ -89,11 +96,11 @@ export const EmergencyOperationInfos: { [key: string]: EmergencyOperationInfo } 
   },
   [EmergencyOperation.PassageLockdown]: {
     level: Level.Fifth,
-    score: 30,
+    score: 40,
   },
   [EmergencyOperation.UnionOfWitchcraftAndArts]: {
     level: Level.Fifth,
-    score: 30,
+    score: 0,
   },
   [EmergencyOperation.DivineDesire]: {
     level: Level.Sixth,
