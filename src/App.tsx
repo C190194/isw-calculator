@@ -125,6 +125,21 @@ const defaultStoreValue: Store = {
 function App() {
   const sm = useMediaQuery("(max-width: 600px)");
 
+  // Create an Audio object
+  const sound = new Audio('/reset.mp3');
+  // Function to handle the "清零" button click
+  const resetClick = () => {
+    
+    // If sound is playing, pause it and reset to the start
+    sound.pause();
+    sound.currentTime = 0;
+    // Play sound
+    sound.play().catch((error) => console.error('Error playing sound:', error));
+
+    // Update the text
+    setStore({ ...defaultStoreValue });
+  };
+
   const [store, setStore] = createStore<Store>({ ...defaultStoreValue });
   // const [store, setStore] = createStore<Store>({ ...testStoreValue });
   
@@ -711,7 +726,7 @@ function App() {
                 <span style={{ "font-size": "x-large" }}>{calcTotalSum()}</span>
               </span>
               <Box sx={{ flexGrow: 1 }} />
-              <Button variant="contained" size="small" onClick={() => { setStore({ ...defaultStoreValue }) }}>清零</Button>
+              <Button variant="contained" size="small" onClick={() => { resetClick() }}>清零</Button>
               <Modal open={copyJsonOpen()} onClose={() => setCopyJsonOpen(false)}>
                 <Paper sx={{
                   position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
@@ -797,7 +812,7 @@ function App() {
             <Card sx={{ display: "flex", flexDirection: "column", gap: 1, padding: 2 }}>
               <Typography sx={{ fontSize: "1.5rem" }}>总计：{calcTotalSum().toFixed(1)}</Typography>
               <Box sx={{ display: "flex", gap: 1 }}>
-                <Button variant="contained" onClick={() => { setStore({ ...defaultStoreValue }) }}>清零</Button>
+                <Button variant="contained" onClick={() => { resetClick() }}>清零</Button>
                 <Button variant="outlined" onClick={async () => {
                   let content = JSON.stringify(store)
                   await saveJson(content);
