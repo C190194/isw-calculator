@@ -126,9 +126,9 @@ function App() {
   const sm = useMediaQuery("(max-width: 600px)");
 
   // Create an Audio object
-  // let audioUrl = require('/src/assets/reset.mp3');
-  // const sound = new Audio(audioUrl);
-  const sound = new Audio('/src/assets/reset.mp3');
+  let audioUrl = '/src/assets/reset.mp3';
+  const sound = new Audio(audioUrl);
+  // const sound = new Audio('/src/assets/reset.mp3');
   // Function to handle the "清零" button click
   const resetClick = () => {
     
