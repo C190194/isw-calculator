@@ -10,17 +10,18 @@ import { readJson, saveJson } from "./lib";
 import { AddHiddenRecordModal, HiddenOperationRecord } from "./components/AddHiddenRecordModal";
 import { Delete } from "@suid/icons-material";
 
-type BannedOperatorRecord = {
-  operator: BannedOperator,
-  banned: boolean,
-}
+// type BannedOperatorRecord = {
+//   operator: BannedOperator,
+//   banned: boolean,
+// }
 
-type KingsCollectibleRecord = {
-  collectible: KingsCollectible,
-  owned: boolean,
-}
+// type KingsCollectibleRecord = {
+//   collectible: KingsCollectible,
+//   owned: boolean,
+// }
 
 type Store = {
+  contestantName: string | null,
   collectible: Collectible | null,
   squad: Squad | null,
   difficulty: Difficulty | null,
@@ -32,12 +33,13 @@ type Store = {
   refreshCnt: number,
   withdrawCnt: number,
   score: number,
-  bannedOperatorRecords: BannedOperatorRecord[],
-  kingsCollectibleRecords: KingsCollectibleRecord[],
-  kingOfTerra: boolean,
+  // bannedOperatorRecords: BannedOperatorRecord[],
+  // kingsCollectibleRecords: KingsCollectibleRecord[],
+  // kingOfTerra: boolean,
 }
 
 const testStoreValue: Store = {
+  contestantName: "",
   squad: Squad.BlueprintSurveyingSquad,
   collectible: Collectible.DoodleInTheEraOfHope,
   collectionsCnt: 0,
@@ -45,14 +47,14 @@ const testStoreValue: Store = {
   refreshCnt: 0,
   withdrawCnt: 0,
   score: 0,
-  bannedOperatorRecords: Object.values(BannedOperator).map((operator) => ({
-    operator: operator as BannedOperator,
-    banned: true
-  })),
-  kingsCollectibleRecords: Object.values(KingsCollectible).map((collectible) => ({
-    collectible: collectible as KingsCollectible,
-    owned: false
-  })),
+  // bannedOperatorRecords: Object.values(BannedOperator).map((operator) => ({
+  //   operator: operator as BannedOperator,
+  //   banned: true
+  // })),
+  // kingsCollectibleRecords: Object.values(KingsCollectible).map((collectible) => ({
+  //   collectible: collectible as KingsCollectible,
+  //   owned: false
+  // })),
   emergencyRecords: [
     {
       operation: EmergencyOperation.AGreatGame,
@@ -96,10 +98,11 @@ const testStoreValue: Store = {
       chaos: true,
     }
   ],
-  kingOfTerra: false,
+  // kingOfTerra: false,
 };
 
 const defaultStoreValue: Store = {
+  contestantName: null,
   squad: null,
   difficulty: null,
   collectible: null,
@@ -108,15 +111,15 @@ const defaultStoreValue: Store = {
   refreshCnt: 0,
   withdrawCnt: 0,
   score: 0,
-  bannedOperatorRecords: Object.values(BannedOperator).map((operator) => ({
-    operator: operator as BannedOperator,
-    banned: true
-  })),
-  kingsCollectibleRecords: Object.values(KingsCollectible).map((collectible) => ({
-    collectible: collectible as KingsCollectible,
-    owned: false
-  })),
-  kingOfTerra: false,
+  // bannedOperatorRecords: Object.values(BannedOperator).map((operator) => ({
+  //   operator: operator as BannedOperator,
+  //   banned: true
+  // })),
+  // kingsCollectibleRecords: Object.values(KingsCollectible).map((collectible) => ({
+  //   collectible: collectible as KingsCollectible,
+  //   owned: false
+  // })),
+  // kingOfTerra: false,
   emergencyRecords: [],
   hiddenRecords: [],
   bossRecords: [],
@@ -270,7 +273,7 @@ function App() {
 
   // 3) c) 每局游戏的源石锭余额减少总数超过40时，每额外减少1源石锭余额，额外扣除50分；
   const calcWithdrawScore = () => {
-    return store.withdrawCnt > 40 ? (store.withdrawCnt - 40) * -50 : 0;
+    return store.withdrawCnt > 150 ? (store.withdrawCnt - 150) * -50 : 0;
   }
 
   const calcScore = () => {
@@ -289,6 +292,18 @@ function App() {
     <Card sx={{ display: "flex", flexShrink: 0, flexDirection: "column", gap: 1, padding: 2, zIndex: 20 }}>
       <Typography variant="h6">开局设置</Typography>
       <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "stretch" }}>
+      <Box sx={{ minWidth: 150, flexGrow: 1 }}>
+          <FormControl fullWidth>
+            {/* <InputLabel id="contestant-name-label">选手名称</InputLabel> */}
+            <TextField
+            label="选手名称"
+            type="text"
+            value={store.contestantName}
+            onChange={(_, value) => setStore("contestantName", value)}
+            />
+          </FormControl>
+        </Box>
+
         <Box sx={{ minWidth: 150, flexGrow: 1 }}>
           <FormControl fullWidth>
             <InputLabel id="squad-select-label">开局分队</InputLabel>
@@ -640,17 +655,17 @@ function App() {
           }
         /> */}
         <TextField
-          label="取钱数量"
+          label="团队取钱数量"
           type="number"
           value={store.withdrawCnt}
           onChange={(_, value) => setStore("withdrawCnt", parseInt(value) || 0)}
           sx={{
-            color: store.withdrawCnt < 40 ? "green" : "red"
+            color: store.withdrawCnt < 150 ? "green" : "red"
           }}
           helperText={
-            store.withdrawCnt <= 40
-              ? <span style={{ color: "green" }}>&lt;= 40</span>
-              : <span style={{ color: "red" }}>{store.withdrawCnt - 40} x -50 = {calcWithdrawScore()}</span>
+            store.withdrawCnt <= 150
+              ? <span style={{ color: "green" }}>&lt;= 150</span>
+              : <span style={{ color: "red" }}>{store.withdrawCnt - 150} x -50 = {calcWithdrawScore()}</span>
           }
         />
 
@@ -692,7 +707,7 @@ function App() {
 
   enum Tab {
     Operation = "作战",
-    OperatorsAndKingsCollectible = "阵容和国王套",
+    // OperatorsAndKingsCollectible = "阵容和国王套",
     Others = "其他",
   }
   const [tab, setTab] = createSignal(Tab.Operation);
