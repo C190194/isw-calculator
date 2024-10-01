@@ -6,7 +6,7 @@ export function isInTauri() {
   return '__TAURI_INTERNALS__' in window
 }
 
-export async function saveJson(content: string) {
+export async function saveJson(content: string, contestantName: string | null) {
   if (isInTauri()) {
     const path = await save({
       filters: [{
@@ -24,7 +24,7 @@ export async function saveJson(content: string) {
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'data.json';
+    a.download = 'data_' + contestantName + '.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

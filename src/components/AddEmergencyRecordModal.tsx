@@ -8,6 +8,7 @@ export type EmergencyOperationRecord = {
   operation: EmergencyOperation,
   refresh: boolean,
   perfect: boolean,
+  HatredInTheEraOfDeathFeud_temp_no: boolean, // 暂无死仇
 }
 
 export const AddEmergencyRecordModal: Component<{

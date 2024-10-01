@@ -41,6 +41,7 @@ type Store = {
 const testStoreValue: Store = {
   contestantName: "",
   squad: Squad.BlueprintSurveyingSquad,
+  difficulty: null,
   collectible: Collectible.DoodleInTheEraOfHope,
   collectionsCnt: 0,
   killedHiddenCnt: 0,
@@ -60,26 +61,31 @@ const testStoreValue: Store = {
       operation: EmergencyOperation.AGreatGame,
       refresh: false,
       perfect: false,
+      HatredInTheEraOfDeathFeud_temp_no: false,
     },
     {
       operation: EmergencyOperation.AGreatGame,
       refresh: false,
       perfect: false,
+      HatredInTheEraOfDeathFeud_temp_no: false,
     },
     {
       operation: EmergencyOperation.AGreatGame,
       refresh: false,
       perfect: false,
+      HatredInTheEraOfDeathFeud_temp_no: false,
     },
     {
       operation: EmergencyOperation.AGreatGame,
       refresh: false,
       perfect: false,
+      HatredInTheEraOfDeathFeud_temp_no: false,
     },
     {
       operation: EmergencyOperation.AGreatGame,
       refresh: false,
       perfect: true,
+      HatredInTheEraOfDeathFeud_temp_no: false,
     }
   ],
   hiddenRecords: [
@@ -150,12 +156,12 @@ function App() {
   
   // 刷新 *50% / 私仇刷新 *30%
   // 无漏 *120%
-  const calcEmergencyRecordScore = (idx: number) => {
+  const calcEmergencyRecordScore = (idx: number, HatredInTheEraOfDeathFeud_temp_no: boolean) => {
     const record = store.emergencyRecords[idx];
     const info = EmergencyOperationInfos[record.operation];
     const score = info.score * (record.perfect ? 1.2 : 1) * (
       record.refresh ? (
-        store.collectible == Collectible.HatredInTheEraOfDeathFeud ? 0.3 : 0.5
+        (store.collectible == Collectible.HatredInTheEraOfDeathFeud && ! HatredInTheEraOfDeathFeud_temp_no) ? 0.3 : 0.5
       ) : 1
     );
     return score;
@@ -177,7 +183,7 @@ function App() {
   }
 
   const calcEmergencySum = () => {
-    const emergencySum = store.emergencyRecords.reduce((sum, _, idx) => sum + calcEmergencyRecordScore(idx), 0);
+    const emergencySum = store.emergencyRecords.reduce((sum, _, idx) => sum + calcEmergencyRecordScore(idx, store.emergencyRecords[idx].HatredInTheEraOfDeathFeud_temp_no), 0);
     return emergencySum;
   }
 
@@ -385,6 +391,7 @@ function App() {
                 <TableCell sx={{ minWidth: 60 }}>名称</TableCell>
                 <TableCell>无漏</TableCell>
                 <TableCell>刷新</TableCell>
+                <TableCell>暂无死仇</TableCell>
                 <TableCell align="right">分数</TableCell>
                 <TableCell align="center">操作</TableCell>
               </TableRow>
@@ -409,7 +416,12 @@ function App() {
                         updateEmergencyRecord(idx(), { ...item, refresh: v });
                       }} />
                     </TableCell>
-                    <TableCell align="right">{calcEmergencyRecordScore(idx()).toFixed(1)}</TableCell>
+                    <TableCell>
+                      <Checkbox size="small" checked={item.HatredInTheEraOfDeathFeud_temp_no} onChange={(_, v) => {
+                        updateEmergencyRecord(idx(), { ...item, HatredInTheEraOfDeathFeud_temp_no: v });
+                      }} />
+                    </TableCell>
+                    <TableCell align="right">{calcEmergencyRecordScore(idx(), item.HatredInTheEraOfDeathFeud_temp_no).toFixed(1)}</TableCell>
                     <TableCell align="center">
                       <IconButton color="error" onClick={() => { removeEmergencyRecord(idx()) }}><Delete /></IconButton>
                     </TableCell>
@@ -832,7 +844,7 @@ function App() {
                 <Button variant="contained" onClick={() => { resetClick() }}>清零</Button>
                 <Button variant="outlined" onClick={async () => {
                   let content = JSON.stringify(store)
-                  await saveJson(content);
+                  await saveJson(content, store.contestantName);
                 }}>保存</Button>
                 <Button variant="outlined" onClick={async () => {
                   const content = await readJson();
